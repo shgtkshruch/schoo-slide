@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/shgtkshruch/schoo-slide/issues"
   },
-  "homepage": "https://github.com/shgtkshruch/schoo-slide"
+  "homepage": "https://github.com/shgtkshruch/schoo-slide",
+  "dependencies": {
+    "async": "^0.9.0"
+  }
 }
