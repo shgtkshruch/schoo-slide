@@ -3,10 +3,11 @@ var rimraf = require('rimraf');
 var async = require('async');
 var Slide = require('./lib/slide');
 var Imagemagic = require('./lib/imagemagic');
+var Title = require('./lib/title');
 
 var dir = 'images/';
 
-async.series([
+async.waterfall([
   function (cb) {
     fs.mkdir(dir, function () {
      cb(null);
@@ -19,7 +20,12 @@ async.series([
     });
   },
   function (cb) {
-    var imagemagic = new Imagemagic(dir);
+    Title(function (title) {
+      cb(null, title);
+    });
+  },
+  function (title, cb) {
+    var imagemagic = new Imagemagic(title, dir);
     imagemagic.convert(function () {
      cb(null);
     });
