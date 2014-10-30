@@ -1,4 +1,9 @@
 var Slide = require('./lib/slide');
+var Imagemagic = require('./lib/imagemagic');
 
 var slide = new Slide();
-slide.download();
+var imagemagic = new Imagemagic();
+
+slide.download(function () {
+  imagemagic.convert();
+});
