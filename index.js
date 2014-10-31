@@ -1,9 +1,12 @@
 var fs = require('fs');
+var path = require('path');
 var rimraf = require('rimraf');
 var async = require('async');
 var Slide = require('./lib/slide');
 var Imagemagic = require('./lib/imagemagic');
 var Title = require('./lib/title');
+var Evernote = require('nevernote');
+var config = require('./config.json');
 
 var dir = 'images/';
 
@@ -26,8 +29,27 @@ async.waterfall([
   },
   function (title, cb) {
     var imagemagic = new Imagemagic(title, dir);
-    imagemagic.convert(function () {
-     cb(null);
+    imagemagic.convert(function (pdf) {
+     cb(null, title, pdf);
+    });
+  },
+  function (title, pdf, cb) {
+    var options = {
+      title: title,
+      file: path.resolve(pdf)
+    }
+    var evernote = new Evernote(config.develop.token);
+    evernote.createNote(options, function (note) {
+      cb(null, pdf);
+    });
+  },
+  function (pdf, cb) {
+    rimraf(pdf, function (err) {
+      if (err) {
+        throw err;
+      }
+      console.log('remove ' + pdf);
+      cb(null);
     });
   },
   function (cb) {
