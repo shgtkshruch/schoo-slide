@@ -5,7 +5,7 @@ var async = require('async');
 var Slide = require('./lib/slide');
 var Imagemagic = require('./lib/imagemagic');
 var Title = require('./lib/title');
-var Evernote = require('nevernote');
+var nodeNote = require('node-note');
 var config = require('./config.json');
 
 var dir = 'images/';
@@ -38,7 +38,7 @@ async.waterfall([
       title: title,
       file: path.resolve(pdf)
     }
-    var evernote = new Evernote(config.develop.token);
+    var evernote = new nodeNote(config);
     evernote.createNote(options, function (note) {
       cb(null, pdf);
     });
