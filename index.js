@@ -17,19 +17,26 @@ async.waterfall([
     });
   },
   function (cb) {
-    var slide = new Slide(dir);
-    slide.download(function () {
-     cb(null);
-    });
-  },
-  function (cb) {
-    Title(function (title) {
-      cb(null, title);
+    async.parallel([
+      function (cb) {
+        Slide(dir, function () {
+         cb(null);
+        });
+      },
+      function (cb) {
+        Title(function (title) {
+          cb(null, title);
+        });
+      }
+    ], function (err, result) {
+      if (err) {
+        throw err;
+      }
+      cb(null, result[1]);
     });
   },
   function (title, cb) {
-    var imagemagic = new Imagemagic(title, dir);
-    imagemagic.convert(function (pdf) {
+    Imagemagic(title, dir, function (pdf) {
      cb(null, title, pdf);
     });
   },
@@ -40,24 +47,19 @@ async.waterfall([
     }
     var evernote = new nodeNote(config);
     evernote.createNote(options, function (note) {
+      console.log('Create new note: ' + title);
       cb(null, pdf);
     });
   },
   function (pdf, cb) {
-    rimraf(pdf, function (err) {
+    async.each([dir, pdf], function (f, cb) {
+      rimraf(f, function (err) {
+        cb(null);
+      });
+    }, function (err) {
       if (err) {
         throw err;
       }
-      console.log('remove ' + pdf);
-      cb(null);
-    });
-  },
-  function (cb) {
-    rimraf(dir, function (err) {
-      if (err) {
-        throw err;
-      }
-      console.log('remove ' + dir + 'directory.');
       cb(null);
     });
   }
@@ -65,5 +67,5 @@ async.waterfall([
   if (err) {
     throw err;
   }
-  console.log('done');
+  console.log('All task done.');
 });
