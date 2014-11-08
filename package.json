@@ -1,8 +1,9 @@
 {
   "name": "schoo-slide",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
+  "bin": "cli.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pro": "NODE_ENV=production node index.js"
@@ -19,7 +20,7 @@
   "homepage": "https://github.com/shgtkshruch/schoo-slide",
   "dependencies": {
     "async": "^0.9.0",
-    "node-note": "file:../node-note",
+    "node-note": "^0.1.3",
     "rimraf": "^2.2.8"
   }
 }

@@ -10,62 +10,66 @@ var config = require('./config.json');
 
 var dir = 'images/';
 
-async.waterfall([
-  function (cb) {
-    fs.mkdir(dir, function () {
-     cb(null);
-    });
-  },
-  function (cb) {
-    async.parallel([
-      function (cb) {
-        Slide(dir, function () {
-         cb(null);
-        });
-      },
-      function (cb) {
-        Title(function (title) {
-          cb(null, title);
-        });
+module.exports = function (classNum) {
+  async.waterfall([
+    function (cb) {
+      fs.mkdir(dir, function () {
+       cb(null);
+      });
+    },
+    function (cb) {
+      async.parallel([
+        function (cb) {
+          Slide(classNum, dir, function () {
+           cb(null);
+          });
+        },
+        function (cb) {
+          Title(classNum, function (title) {
+            cb(null, title);
+          });
+        }
+      ], function (err, result) {
+        if (err) {
+          throw err;
+        }
+        cb(null, result[1]);
+      });
+    },
+    function (title, cb) {
+      Imagemagic(title, dir, function (pdf) {
+       cb(null, title, pdf);
+      });
+    },
+    function (title, pdf, cb) {
+      var options = {
+        title: title,
+        file: path.resolve(pdf),
+        notebookName: '1302 schoo',
+        tag: ['slide']
       }
-    ], function (err, result) {
-      if (err) {
-        throw err;
-      }
-      cb(null, result[1]);
-    });
-  },
-  function (title, cb) {
-    Imagemagic(title, dir, function (pdf) {
-     cb(null, title, pdf);
-    });
-  },
-  function (title, pdf, cb) {
-    var options = {
-      title: title,
-      file: path.resolve(pdf)
-    }
-    var evernote = new nodeNote(config);
-    evernote.createNote(options, function (note) {
-      console.log('Create new note: ' + title);
-      cb(null, pdf);
-    });
-  },
-  function (pdf, cb) {
-    async.each([dir, pdf], function (f, cb) {
-      rimraf(f, function (err) {
+      var evernote = new nodeNote(config);
+      evernote.createNote(options, function (note) {
+        console.log('Create new note: ' + title);
+        cb(null, pdf);
+      });
+    },
+    function (pdf, cb) {
+      async.each([dir, pdf], function (f, cb) {
+        rimraf(f, function (err) {
+          cb(null);
+        });
+      }, function (err) {
+        if (err) {
+          throw err;
+        }
         cb(null);
       });
-    }, function (err) {
-      if (err) {
-        throw err;
-      }
-      cb(null);
-    });
-  }
-], function (err, result) {
-  if (err) {
-    throw err;
-  }
-  console.log('All task done.');
-});
+    }
+  ], function (err, result) {
+    if (err) {
+      throw err;
+    }
+    console.log('All task done.');
+  });
+}
